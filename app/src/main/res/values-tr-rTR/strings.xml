@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Selin\'s Android Labs</string>
+    <string name="hello_message">Merhaba dunya!</string>
+    <string name="button_message">Ben bir butonum</string>
+</resources>
