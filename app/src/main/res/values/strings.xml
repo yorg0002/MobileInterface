@@ -1,9 +1,14 @@
 <resources>
     <string name="app_name">Selin\'s Android Labs</string>
-    <string name="hello_message">Hello world!</string>
+    <string name="hello_message">Hello world</string>
     <string name="button_message">I\'m a button</string>
-    <string name="switch_message"> Spin Flag</string>
-    <string name="button1">Button 1</string>
-    <string name="button2">Button 2</string>
-    <string name="button3">Button 3</string>
+    <string name="spin_message">Spin flag</string>
+    <string name="button1">Button1</string>
+    <string name="button2">Button2</string>
+    <string name="button3">Button3</string>
+    <string name="emailLabel">Enter your Email address</string>
+    <string name="emailHint">Type email here</string>
+    <string name="passwordLabel">Type your password</string>
+    <string name="passwordHint">Type your password</string>
+    <string name="login">Login</string>
 </resources>
