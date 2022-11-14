@@ -1,10 +1,12 @@
 package algonquin.cst2335.yorg0002;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.os.Bundle;
 import android.view.View;
@@ -13,15 +15,21 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import algonquin.cst2335.yorg0002.databinding.ActivityChatRoomBinding;
 import algonquin.cst2335.yorg0002.databinding.ActivityReceiveMessageBinding;
 import algonquin.cst2335.yorg0002.databinding.SentMessageBinding;
 import data.ChatMessage;
+import data.ChatMessageDao;
 import data.ChatRoomViewModel;
+import data.MessageDatabase;
 
 public class ChatRoom extends AppCompatActivity {
 
@@ -32,8 +40,8 @@ public class ChatRoom extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
+        super.onCreate(savedInstanceState);
         binding = ActivityChatRoomBinding.inflate((getLayoutInflater()));
         setContentView(binding.getRoot());
 
@@ -42,6 +50,10 @@ public class ChatRoom extends AppCompatActivity {
         if (messages == null) {
             chatModel.messages.postValue(messages = new ArrayList<ChatMessage>());
         }
+
+
+
+
 
         binding.recycleView.setAdapter(myAdapter = new RecyclerView.Adapter<MyRowHolder>() {
             @NonNull
@@ -100,14 +112,54 @@ public class ChatRoom extends AppCompatActivity {
         });
         binding.recycleView.setLayoutManager(new LinearLayoutManager(this));
 
+        MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
+        ChatMessageDao mDAO = db.cmDAO();
 
+        if(messages == null)
+        {
+            chatModel.messages.setValue(messages = new ArrayList<>());
+
+            Executor thread = Executors.newSingleThreadExecutor();
+            thread.execute(() ->
+            {
+                messages.addAll( mDAO.getAllMessages() ); //Once you get the data from database
+                binding.recycleView.setAdapter( myAdapter ); //You can then load the RecyclerView
+            });
+        }
     }
     class MyRowHolder extends RecyclerView.ViewHolder {
         TextView messageText;
         TextView timeText;
+       // MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
+        //ChatMessageDao mDAO = db.cmDAO();
 
         public MyRowHolder(@NonNull View itemView) {
             super(itemView);
+
+            itemView.setOnClickListener(click ->{
+                int position =  getAbsoluteAdapterPosition();
+                AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
+                builder.setMessage("Do you want to delete the message: " +messageText.getText());
+                builder.setTitle("Question: ");
+                builder.setNegativeButton("No", ((dialog, cl) -> {}));
+                builder.setPositiveButton("Yes", ((dialog, cl) -> {
+                    ChatMessage removedMessage = messages.get(position);
+                   // mDAO.deleteMessage(m);
+                    messages.remove(position);
+                    myAdapter.notifyItemRemoved(position);
+
+                    Snackbar.make(messageText, "You deleted message #" + position, Snackbar.LENGTH_LONG)
+                            .setAction("Undo", clk -> {
+
+                                messages.add(position, removedMessage);
+                                myAdapter.notifyItemInserted(position);
+                            })
+                            .show();
+
+                }))
+                        .create().show();
+
+            });
             messageText = itemView.findViewById(R.id.messageText);
             timeText = itemView.findViewById(R.id.timeText);
         }
