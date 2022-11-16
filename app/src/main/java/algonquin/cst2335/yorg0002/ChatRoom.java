@@ -3,6 +3,9 @@ package algonquin.cst2335.yorg0002;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +33,7 @@ import data.ChatMessage;
 import data.ChatMessageDao;
 import data.ChatRoomViewModel;
 import data.MessageDatabase;
+import data.MessageDetailsFragment;
 
 public class ChatRoom extends AppCompatActivity {
 
@@ -126,6 +130,15 @@ public class ChatRoom extends AppCompatActivity {
                 binding.recycleView.setAdapter( myAdapter ); //You can then load the RecyclerView
             });
         }
+
+        chatModel.selectedMessage.observe(this, (newValue) -> {
+            MessageDetailsFragment chatFragment = new MessageDetailsFragment(newValue);
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.recycleView, chatFragment)
+                    .commit();
+        });
     }
     class MyRowHolder extends RecyclerView.ViewHolder {
         TextView messageText;
