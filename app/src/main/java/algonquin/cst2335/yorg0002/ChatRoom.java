@@ -48,6 +48,8 @@ public class ChatRoom extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityChatRoomBinding.inflate((getLayoutInflater()));
         setContentView(binding.getRoot());
+        MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
+        ChatMessageDao mDAO = db.cmDAO();
 
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         messages = chatModel.messages.getValue();
@@ -100,7 +102,7 @@ public class ChatRoom extends AppCompatActivity {
 
             getSupportFragmentManager()
                     .beginTransaction()
-
+                    .addToBackStack("")
                     .replace(R.id.fragmentLocation, chatFragment)
                     .commit();
         });
@@ -121,8 +123,7 @@ public class ChatRoom extends AppCompatActivity {
         });
         binding.recycleView.setLayoutManager(new LinearLayoutManager(this));
 
-        MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
-        ChatMessageDao mDAO = db.cmDAO();
+
 
         if(messages == null)
         {

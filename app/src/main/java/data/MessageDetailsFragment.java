@@ -24,9 +24,9 @@ public class MessageDetailsFragment extends Fragment {
 
         DetailsLayoutBinding binding = DetailsLayoutBinding.inflate(inflater);
 
-        binding.messageText.setText(selected.getMessage());
-        binding.timeText.setText(selected.getTimeSent());
-        binding.databaseText.setText("Id = " + selected.id);
+        binding.messageView.setText(selected.getMessage());
+        binding.timeView.setText(selected.getTimeSent());
+        binding.databaseIdView.setText("Id = " + selected.id);
         return binding.getRoot();
     }
 }
