@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -41,6 +43,26 @@ public class ChatRoom extends AppCompatActivity {
     private RecyclerView.Adapter<MyRowHolder> myAdapter;
     ArrayList<ChatMessage> messages;
     ChatRoomViewModel chatModel;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.my_menu, menu);
+        return true;
+    }
+
+    @Override ///////////////////////////////////////////////here
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch( item.getItemId() )
+        {
+            case R.id.item_1:
+
+                //put your ChatMessage deletion code here. If you select this item, you should show the alert dialog
+                //asking if the user wants to delete this message.
+                break;
+        }
+
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +161,9 @@ public class ChatRoom extends AppCompatActivity {
 
 
         binding.recycleView.setLayoutManager(new LinearLayoutManager(this));
+
+        setSupportActionBar(binding.myToolbar);
+
 
     }
     class MyRowHolder extends RecyclerView.ViewHolder {
