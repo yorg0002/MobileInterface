@@ -48,13 +48,21 @@ public class ChatRoom extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityChatRoomBinding.inflate((getLayoutInflater()));
         setContentView(binding.getRoot());
-        MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
-        ChatMessageDao mDAO = db.cmDAO();
 
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         messages = chatModel.messages.getValue();
+
+        MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
+        ChatMessageDao mDAO = db.cmDAO();
+
         if (messages == null) {
             chatModel.messages.postValue(messages = new ArrayList<ChatMessage>());
+
+            Executor thread = Executors.newSingleThreadExecutor();
+            thread.execute(() -> {
+                messages.addAll(mDAO.getAllMessages());
+                runOnUiThread( () -> binding.recycleView.setAdapter(myAdapter));
+            });
         }
 
         binding.recycleView.setAdapter(myAdapter = new RecyclerView.Adapter<MyRowHolder>() {
@@ -106,39 +114,45 @@ public class ChatRoom extends AppCompatActivity {
                     .replace(R.id.fragmentLocation, chatFragment)
                     .commit();
         });
+
         binding.sendButton.setOnClickListener(click -> {
             SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd-MMM-yyy hh-mm-ss a");
-            String currentDateandTIme = sdf.format(new Date());
-            messages.add(new ChatMessage(binding.textInput.getText().toString(), currentDateandTIme, true));
-            myAdapter.notifyItemInserted(messages.size()-1);
+            String currentDateandTime = sdf.format(new Date());
+            ChatMessage newMessage = new ChatMessage();
+            newMessage.setMessage(binding.textInput.getText().toString());
+            newMessage.setTimeSent(currentDateandTime);
+            newMessage.setSentButton(true);
+            messages.add(newMessage);
+
+            Executor thread = Executors.newSingleThreadExecutor();
+            thread.execute(() -> {
+                newMessage.id = (int) mDAO.insertMessage(newMessage);
+            });
+            myAdapter.notifyItemInserted(messages.size() - 1);
             binding.textInput.setText("");
         });
 
         binding.receiveButton.setOnClickListener(click -> {
             SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd-MMM-yyy hh-mm-ss a");
-            String currentDateandTIme = sdf.format(new Date());
-            messages.add(new ChatMessage(binding.textInput.getText().toString(), currentDateandTIme, false));
-            myAdapter.notifyItemInserted(messages.size()-1);
-            binding.textInput.setText("");
-        });
-        binding.recycleView.setLayoutManager(new LinearLayoutManager(this));
-
-
-
-        if(messages == null)
-        {
-            chatModel.messages.setValue(messages = new ArrayList<>());
+            String currentDateandTime = sdf.format(new Date());
+            ChatMessage newMessage2 = new ChatMessage();
+            newMessage2.setMessage(binding.textInput.getText().toString());
+            newMessage2.setTimeSent(currentDateandTime);
+            newMessage2.setSentButton(false);
+            messages.add(newMessage2);
 
             Executor thread = Executors.newSingleThreadExecutor();
-            thread.execute(() ->
-            {
-                messages.addAll( mDAO.getAllMessages() ); //Once you get the data from database
-                binding.recycleView.setAdapter( myAdapter ); //You can then load the RecyclerView
+            thread.execute(() -> {
+                newMessage2.setId((int) mDAO.insertMessage(newMessage2));
             });
-        }
-
+            myAdapter.notifyItemInserted(messages.size() - 1);
+            binding.textInput.setText("");
+        });
 
         binding.recycleView.setLayoutManager(new LinearLayoutManager(this));
+
+
+
 
     }
     class MyRowHolder extends RecyclerView.ViewHolder {

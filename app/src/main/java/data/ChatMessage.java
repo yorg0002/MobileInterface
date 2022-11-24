@@ -18,10 +18,9 @@ public class ChatMessage {
     protected boolean isSentButton;
 
 
-
-    @PrimaryKey
+    @PrimaryKey (autoGenerate=true)
+    @ColumnInfo(name="id")
     public int id;
-
 
     public ChatMessage(String m, String t, boolean sent) {
         message = m;
@@ -47,7 +46,7 @@ public class ChatMessage {
         return isSentButton;
     }
 
-
+    public int getId() {return id;}
 
     public void setMessage(String message) {
         this.message = message;
@@ -58,8 +57,9 @@ public class ChatMessage {
     }
 
     public void setSentButton(boolean sentButton) {
-        isSentButton = sentButton;
+        this.isSentButton = sentButton;
     }
 
+    public void setId (int id) { this.id = id;}
 
 }
