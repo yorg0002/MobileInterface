@@ -44,7 +44,7 @@
         tools:ignore="SpeakableTextPresentCheck" />
 
     <FrameLayout
-        android:layout_width="900dp"
+        android:layout_width="965dp"
         android:layout_height="1705dp"
         tools:layout_editor_absoluteX="301dp"
         tools:layout_editor_absoluteY="1dp"
