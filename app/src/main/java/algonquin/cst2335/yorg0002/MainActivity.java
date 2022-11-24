@@ -2,133 +2,91 @@ package algonquin.cst2335.yorg0002;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+import android.widget.ActionMenuView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.Switch;
 
-/**
- * This class is used to check the password requirements and provide the correct toast message.
- * @author Ece Selin Yorgancilar
- * @version 1.0
- */
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import algonquin.cst2335.yorg0002.databinding.ActivityMainBinding;
+
 public class MainActivity extends AppCompatActivity {
+//    ImageView imgView;
+//    Switch sw;
+//    Button loginButton;
+//    EditText emailEditText, passwordEditText;
+//    String emailAddress;
 
-    /** This holds the text at the centre of the screen*/
-    private TextView tv = null;
 
-    /** This holds the text entered by the user in the edittext*/
-    private EditText et = null;
-
-    /** This holds the login button*/
-    private Button btn = null;
-
+    protected String cityName;
+    protected RequestQueue queue = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+       // RequestQueue queue = null;
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        queue = Volley.newRequestQueue(this);
 
-        tv = findViewById(R.id.textView);
-        et = findViewById(R.id.editText);
-        btn = findViewById(R.id.button);
+        //setContentView(R.layout.activity_main);
+        ActivityMainBinding binding = ActivityMainBinding.inflate( getLayoutInflater() );
+        setContentView(binding.getRoot());
 
-        btn.setOnClickListener(clk ->{
-            String password = et.getText().toString();
-            checkPasswordComplexity( password );
-            if (checkPasswordComplexity(password)) {
-                tv.setText("Your password meets the requirements.");
-            }
-            else {
-                tv.setText("You shall not pass!");
-            }
+     //   RequestQueue finalQueue = queue;
+        binding.getForecast.setOnClickListener(click -> {
+            cityName = binding.editText.getText().toString();
+
+            String stringURL = "https://api.openweathermap.org/data/2.5/weather?q="
+                    + URLEncoder.encode(cityName)
+                    + "&appid=7e943c97096a9784391a981c4d878b22&units=metric";
+
+            cityName = binding.editText.getText().toString();
+
+            try {
+                stringURL = new StringBuilder()
+                        .append("https://api.openweathermap.org/data/2.5/weather?q=")
+                        .append(URLEncoder.encode(cityName, "UTF-8"))
+                        .append("&appid=7e943c97096a9784391a981c4d878b22&units=metric").toString();
+            } catch(UnsupportedEncodingException e) { e.printStackTrace(); }
+
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, stringURL, null,
+                    (response) -> {
+                        try {
+                            JSONObject coord = response.getJSONObject("coord");
+                        }catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    },
+                    (error) -> {});
+
+            queue.add(request);
+
+
+
         });
-
     }
 
-    /**
-     * Use this function to check the requirements of the password. If missing any of the requirements show a toast message.
-     * @param password The String object that we are checking
-     * @return Returns true if the password is complex enough, if not return false.
-     */
-    boolean checkPasswordComplexity (String password) {
-        boolean foundUpperCase, foundLowerCase, foundNumber, foundSpecial;
 
-        foundUpperCase = foundLowerCase = foundNumber = foundSpecial = false;
 
-        for (int i = 0; i < password.length(); i++) {
-
-            if (Character.isDigit(password.charAt(i))) {
-                foundNumber = true;
-            } else if (Character.isUpperCase(password.charAt(i))) {
-                foundUpperCase = true;
-            } else if (Character.isLowerCase(password.charAt(i))) {
-                foundLowerCase = true;
-            } else if (isSpecialCharacter(password.charAt(i))) {
-                foundSpecial = true;
-            }
-
-        }//end loop
-
-        if(!foundUpperCase)
-        {
-
-            Toast.makeText(this, "You are missing an upper case letter.", Toast.LENGTH_SHORT).show();
-
-            return false;
-
-        }
-
-        else if( !foundLowerCase)
-        {
-            Toast.makeText(this, "You are missing a lower case letter.", Toast.LENGTH_SHORT).show();
-
-            return false;
-
-        }
-
-        else if( !foundNumber) {
-            Toast.makeText(this, "You are missing a number.", Toast.LENGTH_SHORT).show();
-
-            return false;
-        }
-
-        else if(!foundSpecial) {
-            Toast.makeText(this, "You are missing a special character.", Toast.LENGTH_SHORT).show();
-
-            return false;
-        }
-
-        else
-            Toast.makeText(this, "Your password meets the requirements.", Toast.LENGTH_LONG).show();
-            return true; //only get here if they're all true
-
-    }
-
-    /**
-     * This function is to see whether there is a special character or not.
-     * @param c character to be used to check the case statements.
-     * @return true if c is one of these cases, false if not.
-     */
-    boolean isSpecialCharacter(char c)
-    {
-        switch (c)
-        {
-            case '#':
-            case '?':
-            case '*':
-            case '%':
-            case '^':
-            case '&':
-            case '!':
-            case '@':
-
-                return true;
-            default:
-                return false;
-
-        } //end switch
-
-    }//end isSpecialCharacter
 }
